@@ -22,15 +22,16 @@ programming language).
 - No external libraries may be used for implementation. In particular,
   no RPC libraries or ready-made protocols are permitted.
   Libraries may only be used for marshalling and unmarshalling.
-  1.) Create a sequence diagram that shows the flow of the RPC from the client to the server and
+  1. Create a sequence diagram that shows the flow of the RPC from the client to the server and
   back again, including all intermediate steps.
-  2.) Define the message format based on the selected standard. For each type
+  2. Define the message format based on the selected standard. For each type
   of message, describe the structure and provide an example.
-  3.) Implement the RPC in the programming language of your choice.
-  4.) Measure the duration of a local method call in comparison to your RPC
+  3. Implement the RPC in the programming language of your choice.
+  4. Measure the duration of a local method call in comparison to your RPC
   implementation. Use the same interface for this.
-  5.) Describe the extent to which transparency is achieved in distributed execution with your
+  5. Describe the extent to which transparency is achieved in distributed execution with your
   implementation and how comprehensive it is.
+
   A report must be submitted in the form of a text document containing all relevant design
   decisions (e.g., choice of programming language) and the results of the tasks. The
   source code must be explainable at the time of submission. The implementation must be executable on
