@@ -17,4 +17,5 @@ public class LocalDataStore implements DataStore {
         }
         throw new NoSuchElementException("No value at index "+index);
     }
+
 }
