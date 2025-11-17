@@ -3,19 +3,18 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class LocalDataStore implements DataStore {
-    private Map<Integer,String> store= new HashMap<>();
+    private final Map<Integer,String> store = new HashMap<>();
 
     @Override
     public void write(int index, String data) {
-        store.put(index,data);
+        store.put(index, data);
     }
 
     @Override
     public String read(int index) throws NoSuchElementException {
-        if(store.containsKey(index)){
+        if(store.containsKey(index))
             return store.get(index);
-        }
-        throw new NoSuchElementException("No value at index "+index);
+        throw new NoSuchElementException("No value at index " + index);
     }
 
 }

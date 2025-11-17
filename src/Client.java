@@ -6,14 +6,25 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class Client implements DataStore{
-    private int port=3000;
-    private final String DEFAULT_HOST = "localhost";
-    private String host=DEFAULT_HOST;
-    private int nextId = 1;
+    private static final int DEFAULT_PORT = 3000;
+    private static final String DEFAULT_HOST = "127.0.0.1";
 
-    public void connect(String host, int port) {
+    private int port;
+    private String host;
+    private int nextId = 1;
+    private Socket clientSocket;
+    private PrintWriter out;
+    private BufferedReader in;
+
+    public void connect(String host, int port) throws IOException {
         this.host = host;
         this.port = port;
+        this.clientSocket = new Socket(host, port);
+        this.out = new PrintWriter(clientSocket.getOutputStream(), true);
+        this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    }
+    public void connect() throws IOException {
+        connect(DEFAULT_HOST, DEFAULT_PORT);
     }
 
     @Override
@@ -57,7 +68,6 @@ public class Client implements DataStore{
              BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"))
         ) {
-
             out.write(requestJson);
             out.flush();
             clientSocket.shutdownOutput();
@@ -73,8 +83,11 @@ public class Client implements DataStore{
         } catch (IOException e) {
             throw new RuntimeException("Comunication error", e);
         }
-
     }
 
-
+    public void close() throws IOException {
+        in.close();
+        out.close();
+        clientSocket.close();
+    }
 }
