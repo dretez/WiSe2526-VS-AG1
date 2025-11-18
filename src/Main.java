@@ -12,14 +12,10 @@ public class Main {
 
         // remote call
         Client client = new Client();
+        client.write(1,"Hallo Welt");
         try {
-            client.connect();
-
-            client.write(1,"Hallo Welt");
             String val = client.read(1);
             System.out.println(val);
-
-            client.close();
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }

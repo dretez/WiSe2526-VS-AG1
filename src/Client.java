@@ -1,93 +1,60 @@
 import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class Client implements DataStore{
     private static final int DEFAULT_PORT = 3000;
     private static final String DEFAULT_HOST = "127.0.0.1";
 
-    private int port;
-    private String host;
+    private final int port;
+    private final String host;
     private int nextId = 1;
-    private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
 
-    public void connect(String host, int port) throws IOException {
+    public Client(String host, int port) {
         this.host = host;
         this.port = port;
-        this.clientSocket = new Socket(host, port);
-        this.out = new PrintWriter(clientSocket.getOutputStream(), true);
-        this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
-    public void connect() throws IOException {
-        connect(DEFAULT_HOST, DEFAULT_PORT);
+    public Client() {
+        this(DEFAULT_HOST, DEFAULT_PORT);
     }
 
     @Override
     public void write(int index, String data) {
         int id = nextId++;
-        StringBuilder sb=new StringBuilder();
-        sb.append("{\n");
-        sb.append("\"id\":"+id+",\n");
-        sb.append("\"method\":\"write\",\n");
-        sb.append("\"index\":"+index+",\n");
-        sb.append("\"params\": [\n");
-        sb.append("\""+data+"\"\n");
-        sb.append("]\n}\n");
-        String request = sb.toString();
+        String request = "{\n" +
+                "\"id\":" + id + ",\n" +
+                "\"method\":\"write\",\n" +
+                "\"index\":" + index + ",\n" +
+                "\"data\":" + data + ",\n" +
+                "}\n";
         try {
-            sendRequest(request);
+            RPC.sendRequest(this.host, this.port, request);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println(e.getMessage());
         }
     }
 
     @Override
     public String read(int index) throws NoSuchElementException {
         int id = nextId++;
-        StringBuilder sb=new StringBuilder();
-        sb.append("{\n");
-        sb.append("\"id\":"+id+",\n");
-        sb.append("\"method\":\"read\",\n");
-        sb.append("\"index\":"+index+"\n");
-        sb.append("}\n");
-        String request = sb.toString();
+        String request = "{\n" +
+                "\"id\":" + id + ",\n" +
+                "\"method\":\"read\",\n" +
+                "\"index\":" + index + "\n" +
+                "}\n";
         try {
-            return sendRequest(request);
+            RPC.sendRequest(this.host, this.port, request);
+            String response = RPC.awaitReply(this.host, this.port);
+            var reader = JSONReader.fromString(response);
+            if (!(boolean)reader.get("success"))
+                if ("NoSuchElementException".equals(reader.get("exception.type")))
+                    throw new NoSuchElementException((String) reader.get("exception.message"));
+                else {
+                    System.err.println("Unexpected exception received: " + reader.get("exception.type"));
+                    System.err.println((String) reader.get("exception.message"));
+                }
+            return (String) reader.get("return");
         } catch (IOException e) {
-            return null;
+            throw new RuntimeException(e);
         }
-    }
-
-    private String sendRequest(String requestJson) throws IOException {
-        try (Socket clientSocket = new Socket(host, port);
-             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
-             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"))
-        ) {
-            out.write(requestJson);
-            out.flush();
-            clientSocket.shutdownOutput();
-
-            StringBuilder sb = new StringBuilder();
-            String line;
-
-            while ((line = in.readLine()) != null) {
-                sb.append(line);
-            }
-            return sb.toString();
-
-        } catch (IOException e) {
-            throw new RuntimeException("Comunication error", e);
-        }
-    }
-
-    public void close() throws IOException {
-        in.close();
-        out.close();
-        clientSocket.close();
     }
 }
