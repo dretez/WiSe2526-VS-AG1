@@ -20,7 +20,7 @@ public class Main {
 
         // remote call
         try {
-            Client client = new Client("100.74.192.93");
+            Client client = new Client("localhost");
             starttime = System.nanoTime();
             client.write(1,"Hallo Welt");
             stoptime = System.nanoTime();

@@ -13,6 +13,9 @@ public class Client implements DataStore{
     public Client(String host, int port) throws IOException {
         this.clientSocket = new Socket(host, port);
     }
+    public Client(String host) throws IOException {
+        this(host, DEFAULT_PORT);
+    }
     public Client() throws IOException {
         this(DEFAULT_HOST, DEFAULT_PORT);
     }
