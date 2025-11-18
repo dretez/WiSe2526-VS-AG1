@@ -32,9 +32,16 @@ public class Client implements DataStore{
                 "}\n";
         try {
             RPC.sendRequest(clientSocket, request);
+            String response= RPC.awaitReply(clientSocket);
+            var reader = JSONReader.fromString(response);
+            if((boolean)reader.get("success"))
+                System.out.println("Sucess!");
+            else
+                System.out.println("Failed!");
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
+
     }
 
     @Override

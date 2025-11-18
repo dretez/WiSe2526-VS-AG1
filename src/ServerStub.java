@@ -25,7 +25,7 @@ public class ServerStub extends Thread {
 
     private void handleCall(JSONReader json) {
         switch ((String) json.get("method")) {
-            case "write" -> dataStore.write((Integer) json.get("index"), (String) json.get("data"));
+            case "write" -> replyToWriteCall();
             case "read" -> replyToReadCall(json);
             default -> throw new IllegalStateException("Unexpected method: " + json.get("method"));
         }
@@ -41,6 +41,15 @@ public class ServerStub extends Thread {
                         "{\"type\":\"NoSuchElementException\", \"message\":\""+e.getMessage()+"\"}"+
                     "}";
         }
+        try {
+            RPC.sendRequest(clientSocket, reply);
+        } catch (IOException _) {
+        }
+    }
+
+    private void replyToWriteCall() {
+        String reply;
+        reply = "{\"success\":true}";
         try {
             RPC.sendRequest(clientSocket, reply);
         } catch (IOException _) {
