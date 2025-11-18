@@ -6,15 +6,19 @@ public class Client implements DataStore{
     private static final int DEFAULT_PORT = 3000;
     private static final String DEFAULT_HOST = "127.0.0.1";
 
-    private final Socket serverSocket;
+    private final Socket clientSocket;
 
     private int nextId = 1;
 
     public Client(String host, int port) throws IOException {
-        this.serverSocket = new Socket(host, port);
+        this.clientSocket = new Socket(host, port);
     }
     public Client() throws IOException {
         this(DEFAULT_HOST, DEFAULT_PORT);
+    }
+
+    public void stop() throws IOException {
+        this.clientSocket.close();
     }
 
     @Override
@@ -27,7 +31,7 @@ public class Client implements DataStore{
                 "\"data\":" + data + ",\n" +
                 "}\n";
         try {
-            RPC.sendRequest(serverSocket, request);
+            RPC.sendRequest(clientSocket, request);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
@@ -42,8 +46,8 @@ public class Client implements DataStore{
                 "\"index\":" + index + "\n" +
                 "}\n";
         try {
-            RPC.sendRequest(serverSocket, request);
-            String response = RPC.awaitReply(serverSocket);
+            RPC.sendRequest(clientSocket, request);
+            String response = RPC.awaitReply(clientSocket);
             var reader = JSONReader.fromString(response);
             if (!(boolean)reader.get("success"))
                 if ("NoSuchElementException".equals(reader.get("exception.type")))
