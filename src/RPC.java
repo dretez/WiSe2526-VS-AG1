@@ -6,16 +6,15 @@ public class RPC {
     private RPC() {}
 
     public static void sendRequest(Socket socket, String json) throws IOException {
+        json = json.replace("\n", " ").replace("\r", " ");
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
         out.write(json);
+        out.write("\n");
         out.flush();
     }
 
     public static String awaitReply(Socket socket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-        StringBuilder sb = new StringBuilder();
-        for (var line = in.readLine(); line != null; line = in.readLine())
-            sb.append(line);
-        return sb.toString();
+        return in.readLine();
     }
 }
