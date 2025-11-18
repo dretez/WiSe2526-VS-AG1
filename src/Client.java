@@ -28,7 +28,7 @@ public class Client implements DataStore{
                 "\"id\":" + id + ",\n" +
                 "\"method\":\"write\",\n" +
                 "\"index\":" + index + ",\n" +
-                "\"data\":" + data + ",\n" +
+                "\"data\":\"" + data + "\"\n" +
                 "}\n";
         try {
             RPC.sendRequest(clientSocket, request);
