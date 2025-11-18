@@ -1,19 +1,19 @@
 import java.io.*;
+import java.net.Socket;
 import java.util.NoSuchElementException;
 
 public class Client implements DataStore{
     private static final int DEFAULT_PORT = 3000;
     private static final String DEFAULT_HOST = "127.0.0.1";
 
-    private final int port;
-    private final String host;
+    private final Socket serverSocket;
+
     private int nextId = 1;
 
-    public Client(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public Client(String host, int port) throws IOException {
+        this.serverSocket = new Socket(host, port);
     }
-    public Client() {
+    public Client() throws IOException {
         this(DEFAULT_HOST, DEFAULT_PORT);
     }
 
@@ -27,7 +27,7 @@ public class Client implements DataStore{
                 "\"data\":" + data + ",\n" +
                 "}\n";
         try {
-            RPC.sendRequest(this.host, this.port, request);
+            RPC.sendRequest(serverSocket, request);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
@@ -42,8 +42,8 @@ public class Client implements DataStore{
                 "\"index\":" + index + "\n" +
                 "}\n";
         try {
-            RPC.sendRequest(this.host, this.port, request);
-            String response = RPC.awaitReply(this.host, this.port);
+            RPC.sendRequest(serverSocket, request);
+            String response = RPC.awaitReply(serverSocket);
             var reader = JSONReader.fromString(response);
             if (!(boolean)reader.get("success"))
                 if ("NoSuchElementException".equals(reader.get("exception.type")))
