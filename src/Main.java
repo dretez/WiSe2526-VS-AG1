@@ -1,6 +1,9 @@
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
         long starttime, stoptime;
+        String host = "localhost";
 
         // local call
         LocalDataStore lds = new LocalDataStore();
@@ -20,7 +23,7 @@ public class Main {
 
         // remote call
         try {
-            Client client = new Client("localhost");
+            Client client = new Client(host);
             starttime = System.nanoTime();
             client.write(1,"Hallo Welt");
             stoptime = System.nanoTime();
@@ -30,6 +33,23 @@ public class Main {
             stoptime = System.nanoTime();
             System.out.println(val);
             System.out.println("Remote read call took " + ((stoptime - starttime) / 10e6) + " ms");
+            client.stop();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+
+        // Command line
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Type the index: ");
+        int idx = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("Type the data: ");
+        String data = scanner.nextLine();
+        try {
+            Client client = new Client(host);
+            client.write(idx,data);
+            String val = client.read(idx);
+            System.out.println(val);
             client.stop();
         } catch (Exception e) {
             System.err.println(e.getMessage());
