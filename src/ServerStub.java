@@ -25,7 +25,7 @@ public class ServerStub extends Thread {
 
     private void handleCall(JSONReader json) {
         switch ((String) json.get("method")) {
-            case "write" -> replyToWriteCall();
+            case "write" -> replyToWriteCall(json);
             case "read" -> replyToReadCall(json);
             default -> throw new IllegalStateException("Unexpected method: " + json.get("method"));
         }
@@ -47,7 +47,8 @@ public class ServerStub extends Thread {
         }
     }
 
-    private void replyToWriteCall() {
+    private void replyToWriteCall(JSONReader json) {
+        dataStore.write((Integer) json.get("index"), (String) json.get("data"));
         String reply;
         reply = "{\"success\":true}";
         try {
